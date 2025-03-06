@@ -1,0 +1,69 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Question Paper Generator</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+    <link rel="stylesheet" href="styles.css">
+    
+</head>
+<body>
+    <nav class="navbar">
+        <div class="header-content">
+            <img src="logo.png" alt="Logo" class="logo">
+            <h1>GURUNANAK INSTITUTIONS TECHNICAL CAMPUS</h1>
+        </div>
+    </nav>
+    
+    <div class="container">
+        <h1>Question Paper Generator</h1>
+        
+        <div class="input-section">
+            <div class="file-upload">
+                <input type="file" id="excelFile" accept=".xlsx, .xls" />
+                <label for="excelFile">Upload Question Bank</label>
+                <h3>The question bank must be uploaded only in Excel format (.xlsx or .xls).</h3>
+            </div>
+
+            <div class="paper-type">
+                <h3>Select Paper Type:</h3>
+                <select id="paperType">
+                    <option value="mid1">First Mid (Units 1,2&Part of 3)</option>
+                    <option value="mid2">Second Mid (Units 4,5&Part of 3)</option>
+                    <option value="special">Special Mid</option>
+                </select>
+            </div>
+
+            <div id="specialMidOptions" style="display: none;">
+                <h3>Select Units for Special Mid:</h3>
+                <div>
+                    <label>Main Unit (2 questions):</label>
+                    <select id="mainUnit">
+                        <option value="1">Unit 1</option>
+                        <option value="2">Unit 2</option>
+                        <option value="3">Unit 3</option>
+                        <option value="4">Unit 4</option>
+                        <option value="5">Unit 5</option>
+                    </select>
+                </div>
+            </div>
+
+            <button id="generateButton">Generate Question Paper</button>
+        </div>
+
+        <div class="output-section">
+            <div id="questionPaper"></div>
+            <button id="downloadButton" style="display: none;">Download Question Paper</button>
+        </div>
+    </div>
+    <div class="watermark">Copyright © -AIML@GNITC</div>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.5.31/jspdf.plugin.autotable.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+    <script src="script.js"></script>
+</body>
+</html>

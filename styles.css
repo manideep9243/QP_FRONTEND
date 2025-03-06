@@ -1,0 +1,150 @@
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+body {
+    font-family: Arial, sans-serif;
+    line-height: 1.6;
+    background-color: #f4f4f4;
+}
+
+.navbar {
+    display: flex;
+    justify-content: left;
+    background-color: #ffffff;
+    padding: 15px 30px;
+    border-bottom: 1px solid #ccc;
+}
+
+.header-content {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.logo {
+    height: 50px;
+}
+
+.navbar h1 {
+    margin: 0;
+    font-size: 24px;
+    color: #d32f2f;
+}
+
+.container {
+    max-width: 1000px;
+    margin: 2rem auto;
+    padding: 2rem;
+    background-color: white;
+    border-radius: 10px;
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+    text-align: center;
+}
+
+h1 {
+    text-align: center;
+    color: #333;
+    margin-bottom: 2rem;
+}
+
+.input-section {
+    margin-bottom: 2rem;
+    padding: 1rem;
+    border: 1px solid #ddd;
+    border-radius: 5px;
+}
+
+.file-upload {
+    margin-bottom: 1rem;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
+
+.file-upload input[type="file"] {
+    display: none;
+}
+
+.file-upload label {
+    display: inline-block;
+    padding: 10px 20px;
+    background-color: #4CAF50;
+    color: white;
+    cursor: pointer;
+    border-radius: 5px;
+}
+
+.paper-type {
+    margin: 1rem 0;
+    text-align: left;
+}
+
+.paper-type select, #specialMidOptions select {
+    width: 100%;
+    padding: 10px;
+    margin-top: 0.5rem;
+    border: 1px solid #ddd;
+    border-radius: 5px;
+}
+
+button {
+    display: block;
+    width: 100%;
+    padding: 10px;
+    background-color: #2196F3;
+    color: white;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    margin-top: 1rem;
+}
+
+button:hover {
+    background-color: #1976D2;
+}
+
+.output-section {
+    margin-top: 2rem;
+}
+
+#questionPaper {
+    margin-top: 1rem;
+}
+
+table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-top: 1rem;
+}
+
+th, td {
+    border: 1px solid #ddd;
+    padding: 8px;
+    text-align: left;
+}
+
+th {
+    background-color: #f2f2f2;
+}
+
+#downloadButton {
+    background-color: #4CAF50;
+}
+
+#downloadButton:hover {
+    background-color: #45a049;
+}
+
+
+.watermark {
+    position: fixed; /* Keeps the watermark in a fixed position */
+    bottom: 20px; /* Adjust placement at the bottom */
+    right: 20px; /* Adjust placement to the right */
+    font-size: 1rem; /* Adjust font size */
+    color: rgba(0, 0, 0, 0.5); /* Adjust transparency */
+    pointer-events: none; /* Avoids interaction interference */
+    z-index: 100; /* Ensures visibility above other elements */
+  }
