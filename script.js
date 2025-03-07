@@ -1,9 +1,52 @@
-const API_BASE_URL = 'http://localhost:3000/api';
+const API_BASE_URL = 'https://questionpapergeneratorbackend.onrender.com/api';
 
 document.getElementById('excelFile').addEventListener('change', handleFileUpload);
 document.getElementById('generateButton').addEventListener('click', generateQuestionPaper);
 document.getElementById('downloadButton').addEventListener('click', downloadQuestionPaper);
 document.getElementById('paperType').addEventListener('change', handlePaperTypeChange);
+
+// Function to show notifications below a specific element
+function showNotification(message, type = 'info', targetElement, duration = null) {
+    const notification = document.createElement('div');
+    notification.innerText = message;
+    notification.style.position = 'absolute';
+    notification.style.padding = '10px 20px';
+    notification.style.borderRadius = '5px';
+    notification.style.zIndex = '1000';
+    notification.style.color = '#fff';
+    notification.style.boxShadow = '0 2px 5px rgba(0,0,0,0.2)';
+
+    switch (type) {
+        case 'success':
+            notification.style.backgroundColor = '#28a745'; // Green
+            break;
+        case 'error':
+            notification.style.backgroundColor = '#dc3545'; // Red
+            break;
+        case 'info':
+        default:
+            notification.style.backgroundColor = '#007bff'; // Blue
+            break;
+    }
+
+    // Position the notification below the target element
+    const rect = targetElement.getBoundingClientRect();
+    notification.style.top = `${rect.bottom + window.scrollY + 10}px`; // 10px below the element
+    notification.style.left = `${rect.left + window.scrollX}px`; // Align with the left edge
+
+    document.body.appendChild(notification);
+
+    // Auto-remove notification if a duration is specified
+    if (duration) {
+        setTimeout(() => {
+            if (notification.parentElement) {
+                document.body.removeChild(notification);
+            }
+        }, duration);
+    }
+
+    return notification; // Return the element so it can be removed manually if needed
+}
 
 async function handleFileUpload(e) {
     const file = e.target.files[0];
@@ -12,18 +55,27 @@ async function handleFileUpload(e) {
     const formData = new FormData();
     formData.append('excelFile', file);
 
+    const uploadElement = document.getElementById('excelFile');
+    const uploadNotification = showNotification('File is uploading...', 'info', uploadElement); // No duration, persists
+
     try {
         const response = await fetch(`${API_BASE_URL}/upload`, {
             method: 'POST',
             body: formData
         });
 
-        const data = await response.json();
+        const responseText = await response.text();
+        console.log('Raw response:', responseText);
+
+        const data = JSON.parse(responseText);
         if (!response.ok) throw new Error(data.error || 'Error uploading file');
-        alert('Excel file uploaded and processed successfully!');
+
+        document.body.removeChild(uploadNotification); // Remove "uploading" notification
+        showNotification('Successfully uploaded!', 'success', uploadElement, 3000); // Auto-disappear after 3 seconds
     } catch (error) {
         console.error('Upload Error:', error);
-        alert('Error uploading file: ' + error.message);
+        document.body.removeChild(uploadNotification); // Remove "uploading" notification
+        showNotification('Error uploading file: ' + error.message, 'error', uploadElement, 3000); // Auto-disappear after 3 seconds
     }
 }
 
@@ -34,6 +86,9 @@ async function generateQuestionPaper() {
         const mainUnit = parseInt(document.getElementById('mainUnit').value);
         requestBody.mainUnit = mainUnit;
     }
+
+    const generateButton = document.getElementById('generateButton');
+    const generatingNotification = showNotification('Generating question paper...', 'info', generateButton); // No duration, persists
 
     try {
         const response = await fetch(`${API_BASE_URL}/generate`, {
@@ -58,9 +113,13 @@ async function generateQuestionPaper() {
         sessionStorage.setItem('paperDetails', JSON.stringify(data.paperDetails));
         displayQuestionPaper(questionsWithImages, data.paperDetails, true);
         document.getElementById('downloadButton').style.display = 'block';
+
+        document.body.removeChild(generatingNotification); // Remove "generating" notification
+        showNotification('Question paper generated successfully!', 'success', generateButton, 3000); // Auto-disappear after 3 seconds
     } catch (error) {
         console.error('Generation Error:', error);
-        alert('Error generating question paper: ' + error.message);
+        document.body.removeChild(generatingNotification); // Remove "generating" notification
+        showNotification('Error generating question paper: ' + error.message, 'error', generateButton, 3000); // Auto-disappear after 3 seconds
     }
 }
 
@@ -134,7 +193,7 @@ function displayQuestionPaper(questions, paperDetails, allowEdit = true) {
                             ` : ''}
                         </td>
                         <td>${q.unit}</td>
-                        <td>${q.btLevel}</td>
+                        <td contenteditable="true" oninput="updateBTLevel(${index}, this.innerText)">${q.btLevel}</td>
                         <td>${getCOValue(q.unit)}</td>
                         ${allowEdit ? `<td><button onclick="editQuestion(${index})">Edit</button></td>` : ''}
                     </tr>
@@ -143,7 +202,8 @@ function displayQuestionPaper(questions, paperDetails, allowEdit = true) {
             </table>
             <br>
             <br>
-             <p style="text-align: center;">*<strong>*** ALL THE BEST ****</strong></p>
+            <br>
+            <p style="text-align: center;"><strong>****ALL THE BEST****</strong></p>
         </div>
     `;
     document.getElementById('questionPaper').innerHTML = html;
@@ -152,6 +212,12 @@ function displayQuestionPaper(questions, paperDetails, allowEdit = true) {
 function updateQuestion(index, text) {
     let questions = JSON.parse(sessionStorage.getItem('questions'));
     questions[index].question = text;
+    sessionStorage.setItem('questions', JSON.stringify(questions));
+}
+
+function updateBTLevel(index, text) {
+    let questions = JSON.parse(sessionStorage.getItem('questions'));
+    questions[index].btLevel = text;
     sessionStorage.setItem('questions', JSON.stringify(questions));
 }
 
@@ -167,6 +233,11 @@ function editQuestion(index) {
                 <div style="margin-bottom: 15px;">
                     <label for="questionText" style="display: block; margin-bottom: 5px;">Question Text:</label>
                     <textarea id="questionText" style="width: 100%; height: 100px;">${question.question}</textarea>
+                </div>
+                
+                <div style="margin-bottom: 15px;">
+                    <label for="btLevel" style="display: block; margin-bottom: 5px;">B.T. Level:</label>
+                    <input type="text" id="btLevel" style="width: 100%;" value="${question.btLevel || ''}">
                 </div>
                 
                 <div style="margin-bottom: 15px;">
@@ -203,9 +274,11 @@ function closeEditModal() {
 async function saveQuestion(index) {
     const questions = JSON.parse(sessionStorage.getItem('questions'));
     const questionText = document.getElementById('questionText').value;
+    const btLevel = document.getElementById('btLevel').value.trim();
     const imageUrl = document.getElementById('imageUrl').value.trim();
     
     questions[index].question = questionText;
+    questions[index].btLevel = btLevel;
     questions[index].imageUrl = imageUrl || null;
     if (imageUrl) {
         questions[index].imageDataUrl = await fetchImageDataUrl(imageUrl);
@@ -235,6 +308,7 @@ async function fetchImageDataUrl(imageUrl) {
 async function downloadQuestionPaper() {
     const questions = JSON.parse(sessionStorage.getItem('questions'));
     const paperDetails = JSON.parse(sessionStorage.getItem('paperDetails'));
+    const monthyear = sessionStorage.getItem('monthyear') || '';
 
     const midTermMap = { 'mid1': 'Mid I', 'mid2': 'Mid II', 'special': 'Special Mid' };
     const midTermText = midTermMap[paperDetails.paperType] || 'Mid';
@@ -255,7 +329,8 @@ async function downloadQuestionPaper() {
                     <img src="image.png" alt="Institution Logo" style="max-width: 100%; height: auto;">
                 </div>
             </div>
-            <h3>B.Tech ${paperDetails.year} Year ${paperDetails.semester} Semester ${midTermText} Examinations</h3>
+            <h3>B.Tech ${paperDetails.year} Year ${paperDetails.semester} Semester ${midTermText} Examinations
+                ${monthyear}</h3>
             <div style="display: flex; justify-content: space-between; align-items: center; padding: 5px 0;">
                 <p><span style="float: left;"><strong>Time:</strong> 90 Min.</span></p>
                 <p><span style="float: right;"><strong>Max Marks:</strong> 20</span></p>
@@ -279,6 +354,10 @@ async function downloadQuestionPaper() {
                     </tr>
                 </thead>
                 <tbody>
+                 <br>
+            <br>
+            <br>
+            <p style="text-align: center;"><strong>****ALL THE BEST****</strong></p>
                 ${questions.map((q, index) => `
                     <tr id="pdf-row-${index}">
                         <td>${index + 1}</td>
@@ -296,9 +375,6 @@ async function downloadQuestionPaper() {
                 `).join('')}
                 </tbody>
             </table>
-            <br>
-            <br>
-            <p style="text-align: center;">*<strong>*** ALL THE BEST ****</strong></p>
         </div>
     `;
     hiddenContainer.innerHTML = html;
@@ -391,15 +467,15 @@ async function downloadQuestionPaper() {
 
 function handlePaperTypeChange() {
     const paperType = document.getElementById('paperType').value;
-    const mainUnitContainer = document.getElementById('mainUnitContainer');
+    const specialMidOptions = document.getElementById('specialMidOptions');
     
     if (paperType === 'special') {
-        if (mainUnitContainer) {
-            mainUnitContainer.style.display = 'block';
+        if (specialMidOptions) {
+            specialMidOptions.style.display = 'block';
         }
     } else {
-        if (mainUnitContainer) {
-            mainUnitContainer.style.display = 'none';
+        if (specialMidOptions) {
+            specialMidOptions.style.display = 'none';
         }
     }
 }
